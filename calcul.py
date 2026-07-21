@@ -2,103 +2,103 @@ import math
 import random
 import intro
 
-liczbaKlastrów = 4
-klastry = []
-Centroidy = []
+num_clusters = 4
+clusters = []
+centroids = []
 
 def test():
-    print('\nLICZBA KLASTRÓW ', liczbaKlastrów)
-    intro.wczytajDane()       
-    intro.normalizujDane()     
-    losujCentroidy()
-    wypiszCentroidy()
-    przypiszKrotkomNumeryKlastrów()
-    utwórzKlastry()
-    wypiszKlastry()
-    newCentroidy()
-    wypiszCentroidy()
+    print('\nNUMBER OF CLUSTERS ', num_clusters)
+    intro.load_data()       
+    intro.normalize_data()     
+    initialize_centroids()
+    print_centroids()
+    assign_clusters()
+    create_clusters()
+    print_clusters()
+    update_centroids()
+    print_centroids()
 
-def losujCentroide():
-    # Generujemy 9 losowych ułamków (od 0.0 do 1.0) dla 9 cech liczbowych Doty
-    centroida = []
+def generate_centroid():
+    # Generate 9 random floats (from 0.0 to 1.0) for the 9 numerical features of Dota
+    centroid = []
     for _ in range(9):
-        centroida.append(random.uniform(0.0, 1.0))
-    return centroida
+        centroid.append(random.uniform(0.0, 1.0))
+    return centroid
 
-def losujCentroidy():
-    Centroidy.clear()
+def initialize_centroids():
+    centroids.clear()
     i = 1
-    while i <= liczbaKlastrów:
-        Centroidy.append(losujCentroide())
+    while i <= num_clusters:
+        centroids.append(generate_centroid())
         i = i + 1
 
-def wypiszCentroide(centroida):
-    # Wypisanie współrzędnych centroidu (9 liczb)
-    print(" ".join(['%6.3f' % cecha for cecha in centroida]))
+def print_centroid(centroid):
+    # Print the coordinates of the centroid (9 numbers)
+    print(" ".join(['%6.3f' % feature for feature in centroid]))
 
-def wypiszCentroidy():
-    print('CENTROIDY')
-    for centroida in Centroidy:
-        wypiszCentroide(centroida)
+def print_centroids():
+    print('CENTROIDS')
+    for centroid in centroids:
+        print_centroid(centroid)
 
-def EuklidesPower(krotkaNormal, centroida):
-    # Liczymy odległość TYLKO dla kolumn liczbowych (od indeksu 2 do 10)
-    # Indeks 0 (nazwa) i 1 (typ atrybutu) ignorujemy
-    suma = 0
+def euclidean_distance_sq(data_row, centroid):
+    # Calculate distance ONLY for numerical columns (from index 2 to 10)
+    # Index 0 (name) and 1 (primary attribute) are ignored
+    total_sum = 0
     for i in range(2, 11):
-        dif = centroida[i - 2] - krotkaNormal[i]
-        suma += math.pow(dif, 2)
-    return suma
+        diff = centroid[i - 2] - data_row[i]
+        total_sum += math.pow(diff, 2)
+    return total_sum
 
-def przypiszKrotkomNumeryKlastrów():
-    for krotkaNormal in intro.krotkiNormal:
+def assign_clusters():
+    for data_row in intro.krotkiNormal:
         minimum = 1e100
-        minimumIndex = 0
-        for i in range(len(Centroidy)):
-            next_dist = EuklidesPower(krotkaNormal, Centroidy[i])
+        minimum_index = 0
+        for i in range(len(centroids)):
+            next_dist = euclidean_distance_sq(data_row, centroids[i])
             if next_dist < minimum:
                 minimum = next_dist
-                minimumIndex = i
-        # Zapisujemy znaleziony numer klastra na końcu (indeks 11)
-        krotkaNormal[11] = minimumIndex
+                minimum_index = i
+        # Save the found cluster number at the end (index 11)
+        data_row[11] = minimum_index
 
-def utwórzKlastry():
-    klastry.clear()
-    for i in range(0, len(Centroidy)):
-        klaster = []
-        for krotka in intro.krotkiNormal:
-            if krotka[11] == i:
-                klaster.append(krotka)
-        klastry.append(klaster)
+def create_clusters():
+    clusters.clear()
+    for i in range(0, len(centroids)):
+        cluster = []
+        for data_row in intro.krotkiNormal:
+            if data_row[11] == i:
+                cluster.append(data_row)
+        clusters.append(cluster)
 
-def wypiszKlaster(nrKlastra):
-    print('\nNUMER KLASTRA ', nrKlastra, ' (Liczba bohaterów:', len(klastry[nrKlastra]), ')')
-    for krotka in klastry[nrKlastra]:
-        # Wypisujemy nazwę [0], atrybut [1] i numer klastra [11]
-        print('%-25s %-5s Klastr: %d' % (krotka[0], krotka[1], krotka[11]))
+def print_cluster(cluster_num):
+    print('\nCLUSTER NUMBER ', cluster_num, ' (Number of heroes:', len(clusters[cluster_num]), ')')
+    for data_row in clusters[cluster_num]:
+        # Print name [0], attribute [1], and cluster number [11]
+        print('%-25s %-5s Cluster: %d' % (data_row[0], data_row[1], data_row[11]))
 
-def wypiszKlastry():
-    for numer in range(0, len(Centroidy)):
-        wypiszKlaster(numer)
+def print_clusters():
+    for number in range(0, len(centroids)):
+        print_cluster(number)
 
-def newCentroide(klaster):
-    if len(klaster) == 0:
-        return losujCentroide()
+def calculate_new_centroid(cluster):
+    if len(cluster) == 0:
+        return generate_centroid()
     
-    # Tworzymy tablicę 9 zer do sumowania każdej cechy
-    sumy = [0.0] * 9
-    for krotka in klaster:
+    # Create an array of 9 zeros to sum each feature
+    sums = [0.0] * 9
+    for data_row in cluster:
         for i in range(2, 11):
-            sumy[i - 2] += krotka[i]
+            sums[i - 2] += data_row[i]
             
-    # Dzielimy sumę przez liczbę bohaterów w klastrze (znajdujemy nową średnią)
-    nowa_centroida = []
-    for s in sumy:
-        nowa_centroida.append(s / len(klaster))
-    return nowa_centroida
+    # Divide the sum by the number of heroes in the cluster (finding the new mean)
+    new_centroid = []
+    for s in sums:
+        new_centroid.append(s / len(cluster))
+    return new_centroid
 
-def newCentroidy():
-    Centroidy.clear()
-    print('\nprzesunięto centroidy ------------')
-    for nr in range(liczbaKlastrów):
-        Centroidy.append(newCentroide(klastry[nr]))
+def update_centroids():
+    centroids.clear()
+    print('\nShifted centroids ------------')
+    for nr in range(num_clusters):
+        centroids.append(calculate_new_centroid(clusters[nr]))

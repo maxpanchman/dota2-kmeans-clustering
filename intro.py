@@ -2,37 +2,37 @@ import pandas as pd
 
 krotkiNormal = []
 
-def wczytajDane():
+def load_data():
     global krotkiNormal
-    # 1. Wczytujemy surowe dane pobrane z API
+    # 1. Load raw data fetched from API
     df = pd.read_csv('dota_heroes.csv')
     
-    # 2. Najpierw usuwamy bohaterów z brakującymi danymi (Kez, Largo)
+    # 2. First, drop heroes with missing data (e.g., Kez, Largo)
     df = df.dropna()
     
-    # 3. Oddzielamy tekst od liczb
-    kolumny_tekstowe = df[['localized_name', 'primary_attr']]
-    kolumny_liczbowe = df.drop(columns=['localized_name', 'primary_attr'])
+    # 3. Separate text columns from numerical ones
+    text_columns = df[['localized_name', 'primary_attr']]
+    numerical_columns = df.drop(columns=['localized_name', 'primary_attr'])
     
-    # 4. Bezpieczna normalizacja (unikamy dzielenia przez 0!)
-    rozstep = kolumny_liczbowe.max() - kolumny_liczbowe.min()
-    # Jeśli max-min wynosi 0, zamieniamy to na 1, żeby uniknąć błędu
-    rozstep = rozstep.replace(0, 1) 
+    # 4. Safe normalization (preventing division by zero!)
+    spread = numerical_columns.max() - numerical_columns.min()
+    # If max-min is 0, replace it with 1 to avoid errors
+    spread = spread.replace(0, 1)
     
-    df_znormalizowane = (kolumny_liczbowe - kolumny_liczbowe.min()) / rozstep
+    df_normalized = (numerical_columns - numerical_columns.min()) / spread
     
-    # 5. Łączymy z powrotem tekst z liczbami
-    df_gotowe = pd.concat([kolumny_tekstowe, df_znormalizowane], axis=1)
+    # 5. Concatenate text and numerical columns back together
+    df_ready = pd.concat([text_columns, df_normalized], axis=1)
     
-    # 6. Pakujemy do listy dla algorytmu K-means
+    # 6. Pack into a list for the K-means algorithm
     krotkiNormal.clear()
-    for _, row in df_gotowe.iterrows():
-        krotka = list(row)
-        krotka.append(0) # Dodajemy miejsce na numer klastra na końcu (indeks 11)
-        krotkiNormal.append(krotka)
+    for _, row in df_ready.iterrows():
+        tuple_item = list(row)
+        tuple_item.append(0)  # Add space for the cluster number at the end (index 11)
+        krotkiNormal.append(tuple_item)
         
-    print(f"Dane wczytane! Liczba gotowych bohaterów: {len(krotkiNormal)}")
+    print(f"Data loaded! Number of ready heroes: {len(krotkiNormal)}")
 
-def normalizujDane():
-    # Zostawiamy puste, bo normalizacja robi się automatycznie w wczytajDane()
+def normalize_data():
+    # Left empty, because normalization happens automatically in load_data
     pass

@@ -1,30 +1,31 @@
 import intro
 import calcul
 
-# ograniczenie liczby powtórzeń pętli
-liczbaPowtórzeń = 20
+# Limit the number of loop iterations
+max_iterations = 20
 
 def main():
-    print('\nLICZBA KLASTRÓW ', calcul.liczbaKlastrów)
-    intro.wczytajDane()
-    intro.normalizujDane()
+    print('\nNUMBER OF CLUSTERS ', calcul.num_clusters)
     
-    calcul.losujCentroidy()
-    calcul.wypiszCentroidy()
-    calcul.przypiszKrotkomNumeryKlastrów()
-    calcul.utwórzKlastry()
-    calcul.wypiszKlastry()
+    intro.load_data()
+    intro.normalize_data()
 
-    # poniżej założono blokadę pętli
+    calcul.initialize_centroids()
+    calcul.print_centroids()
+    calcul.assign_clusters()
+    calcul.create_clusters()
+    calcul.print_clusters()
+
+    # The main execution loop with an iteration limit
     repeat = 0
-    while repeat < liczbaPowtórzeń:
-        calcul.newCentroidy()
-        calcul.wypiszCentroidy()
-        calcul.przypiszKrotkomNumeryKlastrów()
-        calcul.utwórzKlastry()
-        calcul.wypiszKlastry()
+    while repeat < max_iterations:
+        calcul.update_centroids()
+        calcul.print_centroids()
+        calcul.assign_clusters()
+        calcul.create_clusters()
+        calcul.print_clusters()
         repeat += 1
 
-# Uruchomienie głównej funkcji programu
+# Run the main function of the program
 if __name__ == "__main__":
     main()

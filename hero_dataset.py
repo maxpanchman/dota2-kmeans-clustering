@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 
 url = "https://api.opendota.com/api/heroStats"
-print("Завантажую дані з серверів OpenDota...")
+print("Fetching data from OpenDota servers...")
 response = requests.get(url)
 data = response.json()
 
@@ -26,4 +26,4 @@ columns_to_keep = [
 df = df[columns_to_keep]
 
 df.to_csv('dota_heroes.csv', index=False)
-print("Готово! Файл dota_heroes.csv успішно створено.")
+print("Done! File dota_heroes.csv created successfully.")
